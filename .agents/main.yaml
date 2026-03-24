@@ -1,0 +1,14 @@
+version: "1.0"
+
+project:
+  name: "electronic-vote"
+  description: "Electronic vote project, allows roles like dev, admin, advisor, user"
+  language: typescript
+  framework: nuxt
+
+layers:
+  context: true
+  skills: true
+  commands: true
+  agents: true
+  permissions: true
