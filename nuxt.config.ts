@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     '/layers/dashboard',
     '/layers/home',
     '/layers/management',
-    '/layers/profile',
+    '/layers/profile'
   ],
   modules: [
     '@nuxt/eslint',
