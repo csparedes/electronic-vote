@@ -1,5 +1,6 @@
 <template>
-  <UContainer>
+  <div class="flex flex-col min-h-screen">
+  <UContainer class="flex flex-col flex-1">
     <UHeader>
       <template #left>
         <NuxtLink to="/">
@@ -16,7 +17,9 @@
           aria-label="GitHub" color="neutral" variant="ghost" />
       </template>
     </UHeader>
-    <slot />
+    <div class="flex-1">
+      <slot />
+    </div>
     <USeparator icon="i-simple-icons-nuxtdotjs" />
 
     <UFooter>
@@ -38,6 +41,7 @@
       </template>
     </UFooter>
   </UContainer>
+  </div>
 </template>
 
 <script lang="ts" setup>
