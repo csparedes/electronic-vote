@@ -17,11 +17,17 @@
     "@nuxt/a11y": "1.0.0-alpha.1",
     "@nuxt/hints": "1.0.2",
     "@nuxt/ui": "^4.5.1",
+    "bcrypt": "^6.0.0",
+    "drizzle-orm": "^0.45.2",
     "nuxt": "^4.4.2",
+    "nuxt-auth-utils": "^0.5.29",
+    "postgres": "^3.4.8",
     "tailwindcss": "^4.2.1"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.15.2",
+    "@types/bcrypt": "^6.0.0",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^10.0.3",
     "typescript": "^5.9.3",
     "vue-tsc": "^3.2.5"

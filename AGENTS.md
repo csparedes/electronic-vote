@@ -1,7 +1,7 @@
 # AGENTS.md - Electronic Vote Project
 
 ## Project Overview
-Electronic voting application built with Nuxt 4, Nuxt UI 4, and PostgreSQL.
+Electronic voting application built with Nuxt 4, Nuxt UI 4, PostgreSQL, Drizzle ORM, and nuxt-auth-utils.
 
 ---
 
@@ -24,7 +24,14 @@ pnpm typecheck    # Run TypeScript type checking
 ### Database (Docker)
 ```bash
 docker compose up -d     # Start PostgreSQL
-docker compose down     # Stop PostgreSQL
+docker compose down       # Stop PostgreSQL
+```
+
+### Database Migrations (Drizzle)
+```bash
+pnpm drizzle-kit generate   # Generate migration from schema changes
+pnpm drizzle-kit push       # Push schema changes to database
+pnpm drizzle-kit studio     # Open Drizzle Studio (database GUI)
 ```
 
 ### Single File Linting
@@ -32,6 +39,19 @@ docker compose down     # Stop PostgreSQL
 pnpm eslint app/pages/index.vue --fix
 pnpm eslint layers/auth/pages/auth.vue --fix
 ```
+
+---
+
+## Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| Framework | Nuxt 4 |
+| UI Library | Nuxt UI 4 |
+| Database | PostgreSQL |
+| ORM | Drizzle ORM |
+| Auth | nuxt-auth-utils (JWT) |
+| Styling | TailwindCSS 4 |
 
 ---
 
@@ -93,25 +113,82 @@ pnpm eslint layers/auth/pages/auth.vue --fix
 
 ```
 electronic-vote/
-├── app/                    # Main application
-│   ├── components/          # Shared components
-│   ├── composables/         # Vue composables
-│   ├── layouts/             # Page layouts
-│   ├── pages/               # Route pages
-│   ├── assets/              # Static assets (css, images)
-│   ├── app.vue              # Root component
-│   └── app.config.ts        # App configuration
-├── layers/                  # Feature layers (extendable modules)
-│   ├── auth/                # Authentication feature
-│   ├── dashboard/           # Dashboard feature
-│   ├── home/                # Home feature
-│   ├── management/          # Management feature
-│   └── profile/             # User profile feature
-├── public/                  # Static public assets
-├── docker-compose.yaml      # PostgreSQL setup
-├── nuxt.config.ts           # Nuxt configuration
-└── package.json             # Dependencies
+├── app/
+│   ├── components/           # Shared components
+│   ├── composables/          # Vue composables (useAuth, usePermissions)
+│   ├── layouts/              # Page layouts (default, auth, authenticated)
+│   ├── middleware/            # Route middleware (auth.global, role)
+│   ├── pages/                # Route pages
+│   │   ├── dashboard/        # Dashboard pages
+│   │   ├── management/       # Management pages
+│   │   └── profile/         # Profile pages
+│   ├── server/
+│   │   ├── api/auth/         # Auth API endpoints
+│   │   ├── database/         # Drizzle schema and connection
+│   │   └── utils/           # Server utilities
+│   ├── types/                # TypeScript type declarations
+│   ├── assets/               # Static assets
+│   ├── app.vue               # Root component
+│   └── app.config.ts         # App configuration
+├── layers/                   # Feature layers (extendable modules)
+│   ├── auth/                 # Authentication feature (login, register)
+│   ├── dashboard/            # Dashboard feature
+│   ├── home/                 # Home feature
+│   ├── management/           # Management feature
+│   └── profile/              # Profile feature
+├── public/                   # Static public assets
+├── docker-compose.yaml        # PostgreSQL setup
+├── drizzle.config.ts          # Drizzle ORM configuration
+├── nuxt.config.ts             # Nuxt configuration
+└── package.json               # Dependencies
 ```
+
+---
+
+## Authentication System
+
+### Roles and Permissions
+
+| Role | Home | Auth | Profile | Dashboard | Management |
+|------|:----:|:----:|:-------:|:--------:|:---------:|
+| voter | ✓ | ✓ | ✓ | ✗ | ✗ |
+| advisor | ✓ | ✓ | ✓ | ✓ | ✗ |
+| admin | ✓ | ✓ | ✓ | ✓ | ✓ |
+| dev | ✓ | ✓ | ✓ | ✓ | ✓ |
+
+### User Schema (Drizzle)
+```typescript
+users: {
+  id: serial primaryKey
+  identification: varchar(50) unique notNull
+  email: varchar(255) unique notNull
+  passwordHash: varchar(255) notNull
+  name: varchar(100) notNull
+  role: varchar(20) default 'voter'
+  createdAt: timestamp default now()
+  updatedAt: timestamp default now()
+}
+```
+
+### API Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Create new user |
+| POST | `/api/auth/login` | Login user |
+| POST | `/api/auth/logout` | Logout user |
+| GET | `/api/auth/me` | Get current user |
+
+### Composables
+- `useAuth()` - Authentication state and methods (login, register, logout)
+- `usePermissions()` - Role-based access control (hasRole, canAccess, isAdmin)
+
+### Middleware
+- `auth.global.ts` - Protects all routes except `/` and `/auth`
+- `role.ts` - Checks if user has required role (via `definePageMeta({ roles: [...] })`)
+
+### Session Configuration
+- JWT-based sessions
+- Session expires after 1 hour (3600 seconds)
 
 ---
 
@@ -121,6 +198,7 @@ electronic-vote/
 - Handle async errors with try/catch in composables
 - Display user-friendly error messages via Nuxt UI toasts
 - Log errors appropriately (avoid exposing sensitive data)
+- API errors use HTTP status codes and return `{ message: string }`
 
 ---
 

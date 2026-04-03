@@ -1,13 +1,5 @@
 <template>
-  <div>
+  <div class="flex items-center justify-center min-h-screen bg-neutral-50 dark:bg-neutral-950">
     <slot />
   </div>
 </template>
-
-<script lang="ts" setup>
-
-</script>
-
-<style>
-
-</style>
