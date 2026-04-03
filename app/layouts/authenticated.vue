@@ -42,18 +42,27 @@
 </template>
 
 <script lang="ts" setup>
-const { user } = useAuth()
+const { user, logout } = useAuth()
 const { canAccess } = usePermissions()
+
+const handleLogout = async (e: Event) => {
+  e.preventDefault()
+  console.log('Logout clicked')
+  try {
+    await logout()
+  } catch (err) {
+    console.error('Logout error:', err)
+  }
+}
 
 const navItems = computed(() => {
   const items: Array<{
     label: string
     to?: string
     icon: string
-    click?: () => void
+    onSelect?: (e: Event) => void
     type?: 'separator'
   }> = [
-    { label: 'Home', to: '/', icon: 'i-lucide-home' },
     { label: 'Profile', to: '/profile', icon: 'i-lucide-user' }
   ]
 
@@ -66,13 +75,8 @@ const navItems = computed(() => {
   }
 
   items.push({ type: 'separator', label: '', icon: '' })
-  items.push({ label: 'Logout', icon: 'i-lucide-log-out', click: handleLogout })
+  items.push({ label: 'Logout', icon: 'i-lucide-log-out', onSelect: handleLogout })
 
   return [items]
 })
-
-const handleLogout = async () => {
-  const { logout } = useAuth()
-  await logout()
-}
 </script>
