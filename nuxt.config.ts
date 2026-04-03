@@ -1,12 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  extends: [
-    './layers/auth',
-    './layers/dashboard',
-    './layers/home',
-    './layers/management',
-    './layers/profile'
-  ],
   modules: [
     '@nuxt/eslint',
     '@nuxt/ui',
