@@ -1,16 +1,20 @@
 export default defineNuxtRouteMiddleware((to) => {
-  const { isAuthenticated } = useAuth()
+  const session = useUserSession()
+
+  if (!session.ready.value) {
+    return
+  }
 
   const isApiRoute = to.path.startsWith('/api/')
   const isAuthRoute = to.path === '/auth'
 
-  if (isAuthRoute && isAuthenticated.value) {
+  if (isAuthRoute && session.user.value) {
     return navigateTo('/dashboard')
   }
 
   if (isApiRoute) return
 
-  if (!isAuthenticated.value) {
+  if (!session.user.value) {
     return navigateTo('/auth')
   }
 })
