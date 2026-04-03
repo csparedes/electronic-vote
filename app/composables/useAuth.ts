@@ -12,7 +12,6 @@ interface RegisterData {
 
 export const useAuth = () => {
   const session = useUserSession()
-  const router = useRouter()
 
   const user = computed(() => session.user.value)
   const isAuthenticated = computed(() => !!session.user.value)
@@ -66,7 +65,8 @@ export const useAuth = () => {
         method: 'POST'
       })
       await session.clear()
-      router.push('/')
+      await nextTick()
+      await navigateTo('/')
     } catch (e: unknown) {
       const err = e as { data?: { message?: string } }
       error.value = err.data?.message || 'Logout failed'
