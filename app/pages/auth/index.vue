@@ -167,7 +167,7 @@ const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 
-const { login, register, isLoading, error } = useAuth()
+const { login, register, isLoading } = useAuth()
 
 const tabs = [
   { label: 'Login', value: 'login' },
@@ -175,6 +175,10 @@ const tabs = [
 ]
 
 const activeTab = ref(route.query.tab === 'register' ? 'register' : 'login')
+
+watch(activeTab, (newTab) => {
+  router.replace({ query: { tab: newTab } })
+})
 
 const loginForm = reactive({
   email: '',
@@ -190,17 +194,21 @@ const registerForm = reactive({
 
 const handleLogin = async () => {
   try {
-    await login(loginForm)
+    console.log('Attempting login...')
+    const result = await login(loginForm)
+    console.log('Login result:', result)
     toast.add({
       title: 'Success',
       description: 'Welcome back!',
       color: 'success'
     })
-    router.push('/dashboard')
-  } catch {
+    await navigateTo('/dashboard')
+  } catch (err: unknown) {
+    console.error('Login error:', err)
+    const errObj = err as { data?: { message?: string } }
     toast.add({
       title: 'Error',
-      description: error.value || 'Login failed',
+      description: errObj?.data?.message || 'Login failed',
       color: 'error'
     })
   }
@@ -217,10 +225,11 @@ const handleRegister = async () => {
     activeTab.value = 'login'
     loginForm.email = registerForm.email
     loginForm.password = ''
-  } catch {
+  } catch (err: unknown) {
+    const errObj = err as { data?: { message?: string } }
     toast.add({
       title: 'Error',
-      description: error.value || 'Registration failed',
+      description: errObj?.data?.message || 'Registration failed',
       color: 'error'
     })
   }

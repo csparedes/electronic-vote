@@ -65,6 +65,7 @@ export const useAuth = () => {
       await $fetch('/api/auth/logout', {
         method: 'POST'
       })
+      await clearSession()
       router.push('/auth')
     } catch (e: unknown) {
       const err = e as { data?: { message?: string } }

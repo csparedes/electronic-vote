@@ -1,10 +1,8 @@
-export default defineNuxtRouteMiddleware(() => {
+export default defineNuxtRouteMiddleware((to) => {
   const { isAuthenticated } = useAuth()
 
-  const route = useRoute()
-
-  const publicRoutes = ['/', '/auth']
-  const isPublicRoute = publicRoutes.some(path => path === route.path)
+  const isApiRoute = to.path.startsWith('/api/')
+  const isPublicRoute = isApiRoute || ['/', '/auth'].includes(to.path)
 
   if (isPublicRoute) return
 

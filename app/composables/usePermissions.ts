@@ -1,4 +1,4 @@
-import { ROLES, type Role } from '~/server/database/schema'
+import { ROLES, type Role } from '~~/server/database/schema'
 
 const ROLE_PERMISSIONS: Record<Role, string[]> = {
   [ROLES.VOTER]: ['home', 'auth', 'profile'],

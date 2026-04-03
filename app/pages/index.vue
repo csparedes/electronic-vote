@@ -9,7 +9,7 @@
       </p>
       <div class="flex gap-4 justify-center pt-4">
         <UButton
-          to="/auth"
+          to="/auth?tab=login"
           size="lg"
           icon="i-lucide-vote"
         >

@@ -1,4 +1,4 @@
-import type { Role } from '~/server/database/schema'
+import type { Role } from '~~/server/database/schema'
 
 export default defineNuxtRouteMiddleware((to) => {
   const { hasRole } = usePermissions()

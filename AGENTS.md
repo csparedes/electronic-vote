@@ -29,15 +29,15 @@ docker compose down       # Stop PostgreSQL
 
 ### Database Migrations (Drizzle)
 ```bash
-pnpm drizzle-kit generate   # Generate migration from schema changes
-pnpm drizzle-kit push       # Push schema changes to database
-pnpm drizzle-kit studio     # Open Drizzle Studio (database GUI)
+pnpm db:generate   # Generate migration from schema changes
+pnpm db:push       # Push schema changes to database
+pnpm db:studio     # Open Drizzle Studio (database GUI)
 ```
 
 ### Single File Linting
 ```bash
 pnpm eslint app/pages/index.vue --fix
-pnpm eslint layers/auth/pages/auth.vue --fix
+pnpm eslint app/pages/auth/index.vue --fix
 ```
 
 ---
@@ -92,9 +92,10 @@ pnpm eslint layers/auth/pages/auth.vue --fix
 | CSS classes | kebab-case | `text-primary`, `bg-neutral` |
 
 #### Imports
-- Use `~` alias for `src/` directory: `~/components/`, `~/composables/`
+- Use `~` alias for `app/` directory: `~/components/`, `~/composables/`
+- Use `~~` for root project path (for server imports from app)
+- Use relative imports for server code: `../../database`, `../utils`
 - Use `@` for node_modules
-- Group imports: 1) Vue/Nuxt 2) External 3) Internal
 
 #### TypeScript
 - Use strict typing; avoid `any`
@@ -117,30 +118,34 @@ electronic-vote/
 │   ├── components/           # Shared components
 │   ├── composables/          # Vue composables (useAuth, usePermissions)
 │   ├── layouts/              # Page layouts (default, auth, authenticated)
-│   ├── middleware/            # Route middleware (auth.global, role)
+│   ├── middleware/           # Route middleware (auth.global, role)
 │   ├── pages/                # Route pages
-│   │   ├── dashboard/        # Dashboard pages
-│   │   ├── management/       # Management pages
-│   │   └── profile/         # Profile pages
-│   ├── server/
-│   │   ├── api/auth/         # Auth API endpoints
-│   │   ├── database/         # Drizzle schema and connection
-│   │   └── utils/           # Server utilities
+│   │   ├── auth/             # Auth pages (login, register, change-password)
+│   │   ├── dashboard/         # Dashboard pages
+│   │   ├── management/        # Management pages
+│   │   └── profile/          # Profile pages
 │   ├── types/                # TypeScript type declarations
 │   ├── assets/               # Static assets
 │   ├── app.vue               # Root component
 │   └── app.config.ts         # App configuration
-├── layers/                   # Feature layers (extendable modules)
-│   ├── auth/                 # Authentication feature (login, register)
-│   ├── dashboard/            # Dashboard feature
-│   ├── home/                 # Home feature
-│   ├── management/           # Management feature
-│   └── profile/              # Profile feature
+├── server/                    # Server-side code (Nuxt Nitro)
+│   ├── api/
+│   │   └── auth/             # Auth API endpoints
+│   │       ├── login.post.ts
+│   │       ├── logout.post.ts
+│   │       ├── me.get.ts
+│   │       └── register.post.ts
+│   ├── database/              # Drizzle schema and connection
+│   │   ├── index.ts
+│   │   └── schema.ts
+│   └── utils/                # Server utilities
+│       ├── password.ts
+│       └── validation.ts
 ├── public/                   # Static public assets
-├── docker-compose.yaml        # PostgreSQL setup
-├── drizzle.config.ts          # Drizzle ORM configuration
-├── nuxt.config.ts             # Nuxt configuration
-└── package.json               # Dependencies
+├── docker-compose.yaml       # PostgreSQL setup
+├── drizzle.config.ts         # Drizzle ORM configuration
+├── nuxt.config.ts            # Nuxt configuration
+└── package.json             # Dependencies
 ```
 
 ---
@@ -183,7 +188,7 @@ users: {
 - `usePermissions()` - Role-based access control (hasRole, canAccess, isAdmin)
 
 ### Middleware
-- `auth.global.ts` - Protects all routes except `/` and `/auth`
+- `auth.global.ts` - Protects all routes except `/`, `/auth`, and `/api/*`
 - `role.ts` - Checks if user has required role (via `definePageMeta({ roles: [...] })`)
 
 ### Session Configuration
@@ -225,3 +230,9 @@ users: {
 - Commit messages: Conventional commits (feat, fix, docs, etc.)
 - Never commit `.env` files with real credentials
 - Run `pnpm lint` and `pnpm typecheck` before committing
+
+---
+
+## Known Issues
+
+- **Login redirect delay**: After successful login, there's approximately a 4-second delay before redirecting to `/dashboard`. This is a known behavior that could be optimized in the future.
