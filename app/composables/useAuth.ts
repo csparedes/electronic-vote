@@ -66,7 +66,7 @@ export const useAuth = () => {
       })
       await session.clear()
       await nextTick()
-      await navigateTo('/')
+      window.location.href = '/'
     } catch (e: unknown) {
       const err = e as { data?: { message?: string } }
       error.value = err.data?.message || 'Logout failed'
