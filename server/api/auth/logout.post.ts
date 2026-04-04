@@ -1,6 +1,6 @@
-import { sendRedirect } from 'h3'
-
 export default defineEventHandler(async (event) => {
   await clearUserSession(event)
-  return sendRedirect(event, '/', 302)
+  return {
+    message: 'Logout successful'
+  }
 })

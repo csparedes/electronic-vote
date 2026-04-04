@@ -23,11 +23,12 @@ export const useAuth = () => {
     error.value = null
 
     try {
-      const response = await $fetch('/api/auth/login', {
+      await $fetch('/api/auth/login', {
         method: 'POST',
         body: credentials
       })
-      return response
+      await session.fetch()
+      await navigateTo('/dashboard')
     } catch (e: unknown) {
       const err = e as { data?: { message?: string } }
       error.value = err.data?.message || 'Login failed'
@@ -65,6 +66,7 @@ export const useAuth = () => {
         method: 'POST'
       })
       await session.clear()
+      await navigateTo('/')
     } catch (e: unknown) {
       const err = e as { data?: { message?: string } }
       error.value = err.data?.message || 'Logout failed'
