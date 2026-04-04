@@ -23,7 +23,7 @@ function parseCSV(csvText: string): CsvRow[] {
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i]
     if (!line) continue
-    
+
     const values = line.split(',').map(v => v.trim())
     const row: Record<string, string> = {}
 

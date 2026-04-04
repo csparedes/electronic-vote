@@ -99,21 +99,25 @@ async function handleSubmit() {
           label="Nombre"
           name="name"
           required
+          class="w-full"
         >
           <UInput
             v-model="form.name"
             placeholder="Elecciones Presidenciales 2026"
+            class="w-full"
           />
         </UFormField>
 
         <UFormField
           label="Descripción"
           name="description"
+          class="w-full"
         >
           <UTextarea
             v-model="form.description"
             placeholder="Descripción de la elección..."
             :rows="3"
+            class="w-full"
           />
         </UFormField>
 
@@ -121,10 +125,12 @@ async function handleSubmit() {
           label="Fecha de Inicio"
           name="startDate"
           required
+          class="w-full"
         >
           <UInput
             v-model="form.startDate"
             type="datetime-local"
+            class="w-full"
           />
         </UFormField>
 
@@ -132,16 +138,19 @@ async function handleSubmit() {
           label="Fecha de Fin"
           name="endDate"
           required
+          class="w-full"
         >
           <UInput
             v-model="form.endDate"
             type="datetime-local"
+            class="w-full"
           />
         </UFormField>
 
         <UFormField
           label="Estado"
           name="status"
+          class="w-full"
         >
           <USelect
             v-model="form.status"
@@ -150,6 +159,7 @@ async function handleSubmit() {
               { label: 'Activa', value: 'active' },
               { label: 'Finalizada', value: 'finished' }
             ]"
+            class="w-full"
           />
         </UFormField>
 

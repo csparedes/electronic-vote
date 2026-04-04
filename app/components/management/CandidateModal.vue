@@ -77,10 +77,12 @@ async function handleSubmit() {
           label="Nombre Completo"
           name="fullName"
           required
+          class="w-full"
         >
           <UInput
             v-model="form.fullName"
             placeholder="Juan Pérez García"
+            class="w-full"
           />
         </UFormField>
 
@@ -88,21 +90,25 @@ async function handleSubmit() {
           label="Nombre de Lista"
           name="listName"
           required
+          class="w-full"
         >
           <UInput
             v-model="form.listName"
             placeholder="Lista Azul"
+            class="w-full"
           />
         </UFormField>
 
         <UFormField
           label="URL de Imagen"
           name="imageUrl"
+          class="w-full"
         >
           <UInput
             v-model="form.imageUrl"
             placeholder="https://example.com/image.jpg"
             type="url"
+            class="w-full"
           />
         </UFormField>
 
