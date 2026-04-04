@@ -1,4 +1,5 @@
-import { pgTable, varchar, timestamp, serial } from 'drizzle-orm/pg-core'
+import { pgTable, varchar, timestamp, serial, text, primaryKey, integer } from 'drizzle-orm/pg-core'
+import { relations } from 'drizzle-orm'
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -22,3 +23,65 @@ export const ROLES = {
 } as const
 
 export type Role = (typeof ROLES)[keyof typeof ROLES]
+
+export const elections = pgTable('elections', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 200 }).notNull(),
+  description: text('description'),
+  startDate: timestamp('start_date').notNull(),
+  endDate: timestamp('end_date').notNull(),
+  status: varchar('status', { length: 20 }).notNull().default('draft'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
+})
+
+export type Election = typeof elections.$inferSelect
+export type NewElection = typeof elections.$inferInsert
+
+export const ELECTION_STATUS = {
+  DRAFT: 'draft',
+  ACTIVE: 'active',
+  FINISHED: 'finished'
+} as const
+
+export type ElectionStatus = (typeof ELECTION_STATUS)[keyof typeof ELECTION_STATUS]
+
+export const candidates = pgTable('candidates', {
+  id: serial('id').primaryKey(),
+  fullName: varchar('full_name', { length: 200 }).notNull(),
+  listName: varchar('list_name', { length: 100 }).notNull(),
+  imageUrl: varchar('image_url', { length: 500 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
+})
+
+export type Candidate = typeof candidates.$inferSelect
+export type NewCandidate = typeof candidates.$inferInsert
+
+export const electionCandidates = pgTable('election_candidates', {
+  electionId: integer('election_id').notNull().references(() => elections.id, { onDelete: 'cascade' }),
+  candidateId: integer('candidate_id').notNull().references(() => candidates.id, { onDelete: 'cascade' })
+}, table => ({
+  pk: primaryKey({ columns: [table.electionId, table.candidateId] })
+}))
+
+export type ElectionCandidate = typeof electionCandidates.$inferSelect
+
+export const electionsRelations = relations(elections, ({ many }) => ({
+  electionCandidates: many(electionCandidates)
+}))
+
+export const candidatesRelations = relations(candidates, ({ many }) => ({
+  electionCandidates: many(electionCandidates)
+}))
+
+export const electionCandidatesRelations = relations(electionCandidates, ({ one }) => ({
+  election: one(elections, {
+    fields: [electionCandidates.electionId],
+    references: [elections.id]
+  }),
+  candidate: one(candidates, {
+    fields: [electionCandidates.candidateId],
+    references: [candidates.id]
+  })
+}))
