@@ -2,6 +2,7 @@ import { getDb, users } from '../../database'
 import { eq } from 'drizzle-orm'
 import { verifyPassword } from '../../utils/password'
 import { sendRedirect } from 'h3'
+import { checkRateLimit, recordFailedAttempt, clearAttempts } from '../../utils/rateLimit'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -14,12 +15,26 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const clientIp = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
+  const rateLimitKey = `login:${email.toLowerCase()}:${clientIp}`
+
+  const rateLimit = checkRateLimit(rateLimitKey)
+
+  if (!rateLimit.allowed) {
+    throw createError({
+      statusCode: 429,
+      message: `Too many login attempts. Please try again in ${rateLimit.retryAfter} seconds.`,
+      data: { retryAfter: rateLimit.retryAfter }
+    })
+  }
+
   const db = getDb()
   const user = await db.query.users.findFirst({
     where: eq(users.email, email)
   })
 
   if (!user) {
+    recordFailedAttempt(rateLimitKey)
     throw createError({
       statusCode: 401,
       message: 'Invalid credentials'
@@ -29,11 +44,14 @@ export default defineEventHandler(async (event) => {
   const isValidPassword = await verifyPassword(password, user.passwordHash)
 
   if (!isValidPassword) {
+    recordFailedAttempt(rateLimitKey)
     throw createError({
       statusCode: 401,
       message: 'Invalid credentials'
     })
   }
+
+  clearAttempts(rateLimitKey)
 
   try {
     await setUserSession(event, {
