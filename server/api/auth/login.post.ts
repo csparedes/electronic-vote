@@ -1,6 +1,7 @@
 import { getDb, users } from '../../database'
 import { eq } from 'drizzle-orm'
 import { verifyPassword } from '../../utils/password'
+import { sendRedirect } from 'h3'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -52,14 +53,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return {
-    message: 'Login successful',
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      identification: user.identification
-    }
-  }
+  return sendRedirect(event, '/dashboard', 302)
 })

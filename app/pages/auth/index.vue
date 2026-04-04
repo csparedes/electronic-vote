@@ -194,17 +194,8 @@ const registerForm = reactive({
 
 const handleLogin = async () => {
   try {
-    console.log('Attempting login...')
-    const result = await login(loginForm)
-    console.log('Login result:', result)
-    toast.add({
-      title: 'Success',
-      description: 'Welcome back!',
-      color: 'success'
-    })
-    await navigateTo('/dashboard')
+    await login(loginForm)
   } catch (err: unknown) {
-    console.error('Login error:', err)
     const errObj = err as { data?: { message?: string } }
     toast.add({
       title: 'Error',
