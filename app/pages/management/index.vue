@@ -388,7 +388,7 @@ async function handleImport() {
 
       <div
         v-else
-        class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+        class="flex flex-col gap-4"
       >
         <ManagementElectionCard
           v-for="election in elections"
@@ -445,7 +445,7 @@ async function handleImport() {
 
       <div
         v-else
-        class="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+        class="flex flex-col gap-4"
       >
         <ManagementCandidateCard
           v-for="candidate in candidates"
