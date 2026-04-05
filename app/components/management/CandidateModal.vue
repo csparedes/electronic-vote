@@ -20,6 +20,10 @@ const emit = defineEmits<{
 }>()
 
 const isEditing = computed(() => !!props.candidate?.id)
+const isOpen = computed({
+  get: () => props.open,
+  set: (value) => { if (!value) emit('close') }
+})
 
 const form = reactive({
   fullName: '',
@@ -63,63 +67,62 @@ async function handleSubmit() {
 
 <template>
   <UModal
-    :open="open"
-    title="Candidato"
-    @update:open="emit('close')"
+    v-model:open="isOpen"
+    :title="isEditing ? 'Editar Candidato' : 'Nuevo Candidato'"
   >
-    <UCard>
-      <UForm
-        :state="form"
-        class="space-y-4"
-        @submit.prevent="handleSubmit"
+    <UForm
+      :state="form"
+      class="space-y-4"
+      @submit.prevent="handleSubmit"
+    >
+      <UFormField
+        label="Nombre Completo"
+        name="fullName"
+        required
+        class="w-full"
       >
-        <UFormField
-          label="Nombre Completo"
-          name="fullName"
-          required
+        <UInput
+          v-model="form.fullName"
+          placeholder="Juan Pérez García"
           class="w-full"
-        >
-          <UInput
-            v-model="form.fullName"
-            placeholder="Juan Pérez García"
-            class="w-full"
-          />
-        </UFormField>
-
-        <UFormField
-          label="Nombre de Lista"
-          name="listName"
-          required
-          class="w-full"
-        >
-          <UInput
-            v-model="form.listName"
-            placeholder="Lista Azul"
-            class="w-full"
-          />
-        </UFormField>
-
-        <UFormField
-          label="URL de Imagen"
-          name="imageUrl"
-          class="w-full"
-        >
-          <UInput
-            v-model="form.imageUrl"
-            placeholder="https://example.com/image.jpg"
-            type="url"
-            class="w-full"
-          />
-        </UFormField>
-
-        <UAlert
-          v-if="error"
-          color="error"
-          variant="soft"
-          :description="error"
         />
+      </UFormField>
 
-        <div class="flex justify-end gap-2 pt-4">
+      <UFormField
+        label="Nombre de Lista"
+        name="listName"
+        required
+        class="w-full"
+      >
+        <UInput
+          v-model="form.listName"
+          placeholder="Lista Azul"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField
+        label="URL de Imagen"
+        name="imageUrl"
+        class="w-full"
+      >
+        <UInput
+          v-model="form.imageUrl"
+          placeholder="https://example.com/image.jpg"
+          type="url"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UAlert
+        v-if="error"
+        color="error"
+        variant="soft"
+        :description="error"
+      />
+
+      <template #footer>
+        <div class="flex justify-end gap-2">
           <UButton
             variant="outline"
             @click="emit('close')"
@@ -133,7 +136,7 @@ async function handleSubmit() {
             {{ isEditing ? 'Guardar Cambios' : 'Crear Candidato' }}
           </UButton>
         </div>
-      </UForm>
-    </UCard>
+      </template>
+    </UForm>
   </UModal>
 </template>

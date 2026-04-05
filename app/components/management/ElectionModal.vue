@@ -24,6 +24,10 @@ const emit = defineEmits<{
 }>()
 
 const isEditing = computed(() => !!props.election?.id)
+const isOpen = computed({
+  get: () => props.open,
+  set: (value) => { if (!value) emit('close') }
+})
 
 const form = reactive({
   name: '',
@@ -85,92 +89,92 @@ async function handleSubmit() {
 
 <template>
   <UModal
-    :open="open"
-    title="Elección"
-    @update:open="emit('close')"
+    v-model:open="isOpen"
+    :title="isEditing ? 'Editar Elección' : 'Nueva Elección'"
   >
-    <UCard>
-      <UForm
-        :state="form"
-        class="space-y-4"
-        @submit.prevent="handleSubmit"
+    <UForm
+      :state="form"
+      class="space-y-4"
+      @submit.prevent="handleSubmit"
+    >
+      <UFormField
+        label="Nombre"
+        name="name"
+        required
+        class="w-full"
       >
-        <UFormField
-          label="Nombre"
-          name="name"
-          required
+        <UInput
+          v-model="form.name"
+          placeholder="Elecciones Presidenciales 2026"
           class="w-full"
-        >
-          <UInput
-            v-model="form.name"
-            placeholder="Elecciones Presidenciales 2026"
-            class="w-full"
-          />
-        </UFormField>
-
-        <UFormField
-          label="Descripción"
-          name="description"
-          class="w-full"
-        >
-          <UTextarea
-            v-model="form.description"
-            placeholder="Descripción de la elección..."
-            :rows="3"
-            class="w-full"
-          />
-        </UFormField>
-
-        <UFormField
-          label="Fecha de Inicio"
-          name="startDate"
-          required
-          class="w-full"
-        >
-          <UInput
-            v-model="form.startDate"
-            type="datetime-local"
-            class="w-full"
-          />
-        </UFormField>
-
-        <UFormField
-          label="Fecha de Fin"
-          name="endDate"
-          required
-          class="w-full"
-        >
-          <UInput
-            v-model="form.endDate"
-            type="datetime-local"
-            class="w-full"
-          />
-        </UFormField>
-
-        <UFormField
-          label="Estado"
-          name="status"
-          class="w-full"
-        >
-          <USelect
-            v-model="form.status"
-            :items="[
-              { label: 'Borrador', value: 'draft' },
-              { label: 'Activa', value: 'active' },
-              { label: 'Finalizada', value: 'finished' }
-            ]"
-            class="w-full"
-          />
-        </UFormField>
-
-        <UAlert
-          v-if="error"
-          color="error"
-          variant="soft"
-          :description="error"
         />
+      </UFormField>
 
-        <div class="flex justify-end gap-2 pt-4">
+      <UFormField
+        label="Descripción"
+        name="description"
+        class="w-full"
+      >
+        <UTextarea
+          v-model="form.description"
+          placeholder="Descripción de la elección..."
+          :rows="3"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField
+        label="Fecha de Inicio"
+        name="startDate"
+        required
+        class="w-full"
+      >
+        <UInput
+          v-model="form.startDate"
+          type="datetime-local"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField
+        label="Fecha de Fin"
+        name="endDate"
+        required
+        class="w-full"
+      >
+        <UInput
+          v-model="form.endDate"
+          type="datetime-local"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UFormField
+        v-if="isEditing"
+        label="Estado"
+        name="status"
+        class="w-full"
+      >
+        <USelect
+          v-model="form.status"
+          :items="[
+            { label: 'Borrador', value: 'draft' },
+            { label: 'Activa', value: 'active' },
+            { label: 'Finalizada', value: 'finished' }
+          ]"
+          class="w-full"
+        />
+      </UFormField>
+
+      <UAlert
+        v-if="error"
+        color="error"
+        variant="soft"
+        :description="error"
+      />
+
+      <template #footer>
+        <div class="flex justify-end gap-2">
           <UButton
             variant="outline"
             @click="emit('close')"
@@ -184,7 +188,7 @@ async function handleSubmit() {
             {{ isEditing ? 'Guardar Cambios' : 'Crear Elección' }}
           </UButton>
         </div>
-      </UForm>
-    </UCard>
+      </template>
+    </UForm>
   </UModal>
 </template>
