@@ -481,17 +481,32 @@ async function handleImport() {
       @remove-candidate="(id) => candidatesModalData && handleRemoveCandidate(candidatesModalData.id, id)"
     />
 
-    <UAlertDialog
-      :open="deleteConfirmOpen"
+    <UModal
+      v-model:open="deleteConfirmOpen"
       title="Confirmar eliminación"
-      :description="`¿Estás seguro de eliminar ${deleteConfirmData?.type === 'election' ? 'la elección' : 'el candidato'} &quot;${deleteConfirmData?.name}&quot;? Esta acción no se puede deshacer.`"
-      color="error"
-      :actions="[
-        { label: 'Cancelar', variant: 'outline' },
-        { label: 'Eliminar', color: 'error', action: handleDelete }
-      ]"
-      @update:open="deleteConfirmOpen = false"
-    />
+      :dismissible="false"
+    >
+      <p class="text-muted">
+        ¿Estás seguro de eliminar {{ deleteConfirmData?.type === 'election' ? 'la elección' : 'el candidato' }} "{{ deleteConfirmData?.name }}"? Esta acción no se puede deshacer.
+      </p>
+
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <UButton
+            variant="outline"
+            @click="deleteConfirmOpen = false"
+          >
+            Cancelar
+          </UButton>
+          <UButton
+            color="error"
+            @click="handleDelete"
+          >
+            Eliminar
+          </UButton>
+        </div>
+      </template>
+    </UModal>
 
     <UModal
       v-model:open="importModalOpen"
