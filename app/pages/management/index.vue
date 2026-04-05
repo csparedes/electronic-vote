@@ -458,16 +458,14 @@ async function handleImport() {
     </div>
 
     <ManagementElectionModal
-      :open="electionModalOpen"
+      v-model:open="electionModalOpen"
       :election="electionModalData"
-      @close="electionModalOpen = false"
       @save="handleSaveElection"
     />
 
     <ManagementCandidateModal
-      :open="candidateModalOpen"
+      v-model:open="candidateModalOpen"
       :candidate="candidateModalData"
-      @close="candidateModalOpen = false"
       @save="handleSaveCandidate"
     />
 
