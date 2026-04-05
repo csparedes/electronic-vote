@@ -27,7 +27,7 @@ const selected = computed(() => props.selected)
 
 <template>
   <UCard
-    class="cursor-pointer transition-all"
+    class="cursor-pointer transition-all w-full"
     :class="{
       'ring-2 ring-primary': selected,
       'hover:ring-1 hover:ring-primary/50': selectable

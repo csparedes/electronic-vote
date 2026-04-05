@@ -47,7 +47,7 @@ const formatDate = (dateStr: string) => {
 </script>
 
 <template>
-  <UCard>
+  <UCard class="w-full">
     <template #header>
       <div class="flex items-start justify-between">
         <div class="flex-1">
