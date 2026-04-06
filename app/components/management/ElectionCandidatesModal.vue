@@ -13,15 +13,15 @@ interface Props {
   }
   electionCandidates: Candidate[]
   allCandidates: Candidate[]
-  open: boolean
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<{
-  close: []
   addCandidate: [candidateId: number]
   removeCandidate: [candidateId: number]
 }>()
+
+const open = defineModel<boolean>()
 
 const selectedIds = ref<Set<number>>(new Set(props.electionCandidates.map(c => c.id)))
 
@@ -50,12 +50,11 @@ function toggleCandidate(candidate: Candidate) {
 
 <template>
   <UModal
-    :open="open"
+    v-model:open="open"
     :title="`Gestionar Candidatos: ${election.name}`"
     class="max-w-2xl"
-    @update:open="emit('close')"
   >
-    <UCard>
+    <template #body>
       <div class="space-y-6">
         <div>
           <h4 class="font-medium mb-3 flex items-center gap-2">
@@ -79,7 +78,7 @@ function toggleCandidate(candidate: Candidate) {
 
           <div
             v-else
-            class="space-y-2"
+            class="space-y-2 max-h-48 overflow-y-auto"
           >
             <ManagementCandidateCard
               v-for="candidate in assignedCandidates"
@@ -119,7 +118,7 @@ function toggleCandidate(candidate: Candidate) {
 
           <div
             v-else
-            class="space-y-2 max-h-64 overflow-y-auto"
+            class="space-y-2 max-h-48 overflow-y-auto"
           >
             <ManagementCandidateCard
               v-for="candidate in availableCandidates"
@@ -132,14 +131,14 @@ function toggleCandidate(candidate: Candidate) {
           </div>
         </div>
       </div>
+    </template>
 
-      <template #footer>
-        <div class="flex justify-end">
-          <UButton @click="emit('close')">
-            Cerrar
-          </UButton>
-        </div>
-      </template>
-    </UCard>
+    <template #footer>
+      <div class="flex justify-end">
+        <UButton @click="open = false">
+          Cerrar
+        </UButton>
+      </div>
+    </template>
   </UModal>
 </template>

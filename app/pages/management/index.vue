@@ -470,11 +470,10 @@ async function handleImport() {
     />
 
     <ManagementElectionCandidatesModal
-      :open="candidatesModalOpen"
+      v-model:open="candidatesModalOpen"
       :election="candidatesModalData || { id: 0, name: '' }"
       :election-candidates="elections.find(e => e.id === candidatesModalData?.id)?.candidates || []"
       :all-candidates="candidates"
-      @close="candidatesModalOpen = false"
       @add-candidate="(id) => candidatesModalData && handleAddCandidate(candidatesModalData.id, id)"
       @remove-candidate="(id) => candidatesModalData && handleRemoveCandidate(candidatesModalData.id, id)"
     />
