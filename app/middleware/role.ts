@@ -7,10 +7,7 @@ export default defineNuxtRouteMiddleware((to) => {
 
   if (requiredRoles && requiredRoles.length > 0) {
     if (!hasRole(requiredRoles)) {
-      throw createError({
-        statusCode: 403,
-        message: 'Access denied. Insufficient permissions.'
-      })
+      return navigateTo('/')
     }
   }
 })

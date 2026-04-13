@@ -1,4 +1,5 @@
 import { getDb, candidates } from '../../database'
+import { requireAuth, ROLES } from '../../utils/auth'
 
 interface CsvRow {
   fullName: string
@@ -48,6 +49,8 @@ function parseCSV(csvText: string): CsvRow[] {
 }
 
 export default defineEventHandler(async (event) => {
+  await requireAuth(event, [ROLES.ADMIN, ROLES.DEV])
+
   const body = await readBody(event)
   const { csv } = body
 

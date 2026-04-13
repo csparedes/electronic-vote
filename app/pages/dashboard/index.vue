@@ -11,6 +11,8 @@
 
 <script lang="ts" setup>
 definePageMeta({
-  layout: 'authenticated'
+  layout: 'authenticated',
+  middleware: ['role'],
+  roles: ['advisor', 'admin', 'dev']
 })
 </script>

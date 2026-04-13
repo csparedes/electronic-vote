@@ -47,11 +47,10 @@ const { canAccess } = usePermissions()
 
 const handleLogout = async (e: Event) => {
   e.preventDefault()
-  console.log('Logout clicked')
   try {
     await logout()
-  } catch (err) {
-    console.error('Logout error:', err)
+  } catch {
+    // Error is handled by useAuth
   }
 }
 

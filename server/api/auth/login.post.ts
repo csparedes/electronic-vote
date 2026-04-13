@@ -63,8 +63,7 @@ export default defineEventHandler(async (event) => {
         identification: user.identification
       }
     })
-  } catch (sessionError) {
-    console.error('[LOGIN] Session error:', sessionError)
+  } catch {
     throw createError({
       statusCode: 500,
       message: 'Failed to create session'

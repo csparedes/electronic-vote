@@ -1,6 +1,9 @@
 import { getDb, elections } from '../../database'
+import { requireAuth, ROLES } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
+  await requireAuth(event, [ROLES.ADMIN, ROLES.DEV])
+
   const body = await readBody(event)
   const { name, description, startDate, endDate, status } = body
 

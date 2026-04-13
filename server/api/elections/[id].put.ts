@@ -1,8 +1,11 @@
 import { getDb, elections } from '../../database'
 import { eq } from 'drizzle-orm'
 import { ELECTION_STATUS } from '../../database/schema'
+import { requireAuth, ROLES } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
+  await requireAuth(event, [ROLES.ADMIN, ROLES.DEV])
+
   const id = Number(getRouterParam(event, 'id'))
 
   if (isNaN(id)) {

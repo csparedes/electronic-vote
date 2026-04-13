@@ -6,7 +6,7 @@ export default defineNuxtRouteMiddleware((to) => {
   }
 
   const isApiRoute = to.path.startsWith('/api/')
-  const isPublicRoute = ['/', '/auth'].includes(to.path)
+  const isPublicRoute = to.path === '/' || to.path.startsWith('/auth')
 
   if (isApiRoute || isPublicRoute) {
     if (to.path === '/auth' && session.user.value) {
