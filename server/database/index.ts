@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import { users, elections, candidates, electionCandidates } from './schema'
+import { users, elections, candidates, electionCandidates, votes } from './schema'
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 
 type DbType = PostgresJsDatabase<{
@@ -8,6 +8,7 @@ type DbType = PostgresJsDatabase<{
   elections: typeof elections
   candidates: typeof candidates
   electionCandidates: typeof electionCandidates
+  votes: typeof votes
 }>
 
 let _db: DbType | null = null
@@ -17,9 +18,10 @@ export function getDb(): DbType {
   if (!_db) {
     const databaseUrl = process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/app'
     _sql = postgres(databaseUrl)
-    _db = drizzle(_sql, { schema: { users, elections, candidates, electionCandidates } })
+    _db = drizzle(_sql, { schema: { users, elections, candidates, electionCandidates, votes } })
   }
   return _db
 }
 
-export { users, elections, candidates, electionCandidates }
+export { users, elections, candidates, electionCandidates, votes }
+export { ELECTION_STATUS } from './schema'

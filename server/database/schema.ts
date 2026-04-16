@@ -1,4 +1,4 @@
-import { pgTable, varchar, timestamp, serial, text, primaryKey, integer } from 'drizzle-orm/pg-core'
+import { pgTable, varchar, timestamp, serial, text, primaryKey, integer, uniqueIndex } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
 export const users = pgTable('users', {
@@ -82,6 +82,34 @@ export const electionCandidatesRelations = relations(electionCandidates, ({ one 
   }),
   candidate: one(candidates, {
     fields: [electionCandidates.candidateId],
+    references: [candidates.id]
+  })
+}))
+
+export const votes = pgTable('votes', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  electionId: integer('election_id').notNull().references(() => elections.id, { onDelete: 'cascade' }),
+  candidateId: integer('candidate_id').notNull().references(() => candidates.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+}, table => ({
+  userElectionUnique: uniqueIndex('user_election_unique').on(table.userId, table.electionId)
+}))
+
+export type Vote = typeof votes.$inferSelect
+export type NewVote = typeof votes.$inferInsert
+
+export const votesRelations = relations(votes, ({ one }) => ({
+  user: one(users, {
+    fields: [votes.userId],
+    references: [users.id]
+  }),
+  election: one(elections, {
+    fields: [votes.electionId],
+    references: [elections.id]
+  }),
+  candidate: one(candidates, {
+    fields: [votes.candidateId],
     references: [candidates.id]
   })
 }))

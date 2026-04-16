@@ -62,15 +62,16 @@ const navItems = computed(() => {
     onSelect?: (e: Event) => void
     type?: 'separator'
   }> = [
+    { label: 'Vote', to: '/vote', icon: 'i-lucide-vote' },
     { label: 'Profile', to: '/profile', icon: 'i-lucide-user' }
   ]
 
   if (canAccess('dashboard')) {
-    items.splice(1, 0, { label: 'Dashboard', to: '/dashboard', icon: 'i-lucide-layout-dashboard' })
+    items.splice(2, 0, { label: 'Dashboard', to: '/dashboard', icon: 'i-lucide-layout-dashboard' })
   }
 
   if (canAccess('management')) {
-    items.splice(2, 0, { label: 'Management', to: '/management', icon: 'i-lucide-settings' })
+    items.splice(3, 0, { label: 'Management', to: '/management', icon: 'i-lucide-settings' })
   }
 
   items.push({ type: 'separator', label: '', icon: '' })

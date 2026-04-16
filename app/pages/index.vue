@@ -9,6 +9,15 @@
       </p>
       <div class="flex gap-4 justify-center pt-4">
         <UButton
+          v-if="isAuthenticated"
+          to="/vote"
+          size="lg"
+          icon="i-lucide-vote"
+        >
+          Vote Now
+        </UButton>
+        <UButton
+          v-else
           to="/auth?tab=login"
           size="lg"
           icon="i-lucide-vote"
@@ -16,12 +25,22 @@
           Vote Now
         </UButton>
         <UButton
+          v-if="!isAuthenticated"
           to="/auth?tab=register"
           size="lg"
           variant="outline"
           icon="i-lucide-user-plus"
         >
           Register
+        </UButton>
+        <UButton
+          v-if="isAuthenticated && canAccess('dashboard')"
+          to="/dashboard"
+          size="lg"
+          variant="outline"
+          icon="i-lucide-layout-dashboard"
+        >
+          Dashboard
         </UButton>
       </div>
     </div>
@@ -56,6 +75,14 @@
         Join thousands of voters in secure electronic elections.
       </p>
       <UButton
+        v-if="isAuthenticated"
+        to="/vote"
+        size="lg"
+      >
+        Vote Now
+      </UButton>
+      <UButton
+        v-else
         to="/auth"
         size="lg"
       >
@@ -69,6 +96,9 @@
 definePageMeta({
   layout: 'default'
 })
+
+const { isAuthenticated } = useAuth()
+const { canAccess } = usePermissions()
 
 const features = [
   {

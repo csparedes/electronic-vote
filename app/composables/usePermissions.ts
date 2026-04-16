@@ -1,10 +1,10 @@
 import { ROLES, type Role } from '~~/server/database/schema'
 
 const ROLE_PERMISSIONS: Record<Role, string[]> = {
-  [ROLES.VOTER]: ['home', 'auth', 'profile'],
-  [ROLES.ADVISOR]: ['home', 'auth', 'profile', 'dashboard'],
-  [ROLES.ADMIN]: ['home', 'auth', 'profile', 'dashboard', 'management'],
-  [ROLES.DEV]: ['home', 'auth', 'profile', 'dashboard', 'management']
+  [ROLES.VOTER]: ['home', 'auth', 'profile', 'vote'],
+  [ROLES.ADVISOR]: ['home', 'auth', 'profile', 'vote', 'dashboard'],
+  [ROLES.ADMIN]: ['home', 'auth', 'profile', 'vote', 'dashboard', 'management'],
+  [ROLES.DEV]: ['home', 'auth', 'profile', 'vote', 'dashboard', 'management']
 }
 
 export const usePermissions = () => {
