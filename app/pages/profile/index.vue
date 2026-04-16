@@ -35,9 +35,7 @@
 </template>
 
 <script lang="ts" setup>
-definePageMeta({
-  layout: 'authenticated'
-})
+definePageMeta({})
 
 const { user } = useAuth()
 </script>
