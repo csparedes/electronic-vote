@@ -1,3 +1,68 @@
+<script lang="ts" setup>
+definePageMeta({
+  layout: 'auth'
+})
+
+const toast = useToast()
+const router = useRouter()
+const isLoading = ref(false)
+
+const form = reactive({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
+const handleSubmit = async () => {
+  if (form.newPassword !== form.confirmPassword) {
+    toast.add({
+      title: 'Error',
+      description: 'New passwords do not match',
+      color: 'error'
+    })
+    return
+  }
+
+  if (form.newPassword.length < 8) {
+    toast.add({
+      title: 'Error',
+      description: 'New password must be at least 8 characters',
+      color: 'error'
+    })
+    return
+  }
+
+  isLoading.value = true
+
+  try {
+    await $fetch('/api/auth/change-password', {
+      method: 'POST',
+      body: {
+        currentPassword: form.currentPassword,
+        newPassword: form.newPassword
+      }
+    })
+
+    toast.add({
+      title: 'Success',
+      description: 'Your password has been changed successfully',
+      color: 'success'
+    })
+
+    router.push('/auth')
+  } catch (error: unknown) {
+    const err = error as { data?: { message?: string } }
+    toast.add({
+      title: 'Error',
+      description: err.data?.message || 'Failed to change password. Please try again.',
+      color: 'error'
+    })
+  } finally {
+    isLoading.value = false
+  }
+}
+</script>
+
 <template>
   <div class="w-full max-w-md">
     <div class="text-center mb-8">
@@ -8,20 +73,16 @@
         <AppLogo class="w-auto h-8" />
       </NuxtLink>
       <p class="text-muted mt-2">
-        Reset your password
+        Change your password
       </p>
     </div>
 
     <UCard class="w-full">
       <template #header>
         <h1 class="text-xl font-semibold text-center">
-          Forgot Password?
+          Change Password
         </h1>
       </template>
-
-      <p class="text-muted text-sm mb-6">
-        Enter your email address and we'll send you a link to reset your password.
-      </p>
 
       <UForm
         :state="form"
@@ -29,15 +90,43 @@
         @submit="handleSubmit"
       >
         <UFormField
-          label="Email"
-          name="email"
+          label="Current Password"
+          name="currentPassword"
           required
           class="w-full"
         >
           <UInput
-            v-model="form.email"
-            type="email"
-            placeholder="you@example.com"
+            v-model="form.currentPassword"
+            type="password"
+            placeholder="Enter your current password"
+            class="w-full"
+          />
+        </UFormField>
+
+        <UFormField
+          label="New Password"
+          name="newPassword"
+          required
+          class="w-full"
+        >
+          <UInput
+            v-model="form.newPassword"
+            type="password"
+            placeholder="Enter your new password"
+            class="w-full"
+          />
+        </UFormField>
+
+        <UFormField
+          label="Confirm New Password"
+          name="confirmPassword"
+          required
+          class="w-full"
+        >
+          <UInput
+            v-model="form.confirmPassword"
+            type="password"
+            placeholder="Confirm your new password"
             class="w-full"
           />
         </UFormField>
@@ -47,7 +136,7 @@
           block
           :loading="isLoading"
         >
-          Send Reset Link
+          Change Password
         </UButton>
       </UForm>
 
@@ -66,41 +155,3 @@
     </UCard>
   </div>
 </template>
-
-<script lang="ts" setup>
-definePageMeta({
-  layout: 'auth'
-})
-
-const toast = useToast()
-const router = useRouter()
-const isLoading = ref(false)
-
-const form = reactive({
-  email: ''
-})
-
-const handleSubmit = async () => {
-  isLoading.value = true
-
-  try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    toast.add({
-      title: 'Email Sent',
-      description: 'Check your email for password reset instructions.',
-      color: 'success'
-    })
-
-    router.push('/auth')
-  } catch {
-    toast.add({
-      title: 'Error',
-      description: 'Failed to send reset email. Please try again.',
-      color: 'error'
-    })
-  } finally {
-    isLoading.value = false
-  }
-}
-</script>

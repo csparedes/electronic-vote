@@ -24,4 +24,4 @@ logs
 !.env.example
 
 # postgres database info
-postgres_data/
+postgres_data

@@ -7,45 +7,115 @@ interface CsvRow {
   imageUrl?: string
 }
 
-function parseCSV(csvText: string): CsvRow[] {
-  const lines = csvText.trim().split('\n')
+interface ParseResult {
+  rows: CsvRow[]
+  errors: string[]
+}
+
+function parseCSVLine(line: string): string[] {
+  const result: string[] = []
+  let current = ''
+  let inQuotes = false
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i]
+    const nextChar = line[i + 1]
+
+    if (inQuotes) {
+      if (char === '"' && nextChar === '"') {
+        current += '"'
+        i++
+      } else if (char === '"') {
+        inQuotes = false
+      } else {
+        current += char
+      }
+    } else {
+      if (char === '"') {
+        inQuotes = true
+      } else if (char === ',') {
+        result.push(current.trim())
+        current = ''
+      } else {
+        current += char
+      }
+    }
+  }
+
+  result.push(current.trim())
+  return result
+}
+
+function parseCSV(csvText: string): ParseResult {
+  const normalized = csvText.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+  const lines = normalized.split('\n').map(l => l.trim()).filter(l => l.length > 0)
+
   if (lines.length < 2) {
-    return []
+    return { rows: [], errors: ['CSV must have a header row and at least one data row'] }
   }
 
   const headerLine = lines[0]
   if (!headerLine) {
-    return []
+    return { rows: [], errors: ['CSV header is empty'] }
   }
 
-  const headers = headerLine.split(',').map(h => h.trim().toLowerCase())
+  const headers = parseCSVLine(headerLine).map(h => h.toLowerCase())
+
+  const fullNameIndex = headers.findIndex(h => h === 'fullname' || h === 'full_name')
+  const listNameIndex = headers.findIndex(h => h === 'listname' || h === 'list_name')
+  const imageUrlIndex = headers.findIndex(h => h === 'imageurl' || h === 'image_url')
+
+  if (fullNameIndex === -1) {
+    return { rows: [], errors: ['CSV must have a "fullName" column'] }
+  }
+  if (listNameIndex === -1) {
+    return { rows: [], errors: ['CSV must have a "listName" column'] }
+  }
+
   const rows: CsvRow[] = []
+  const errors: string[] = []
 
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i]
     if (!line) continue
 
-    const values = line.split(',').map(v => v.trim())
-    const row: Record<string, string> = {}
+    const values = parseCSVLine(line)
 
-    headers.forEach((header, index) => {
-      const value = values[index]
-      row[header] = value !== undefined ? value : ''
-    })
+    const fullName = fullNameIndex < values.length ? (values[fullNameIndex] ?? '').trim() : ''
+    const listName = listNameIndex < values.length ? (values[listNameIndex] ?? '').trim() : ''
+    const imageUrl = imageUrlIndex !== -1 && imageUrlIndex < values.length ? (values[imageUrlIndex] ?? '').trim() : ''
 
-    const fullName = row.fullname || row.full_name || ''
-    const listName = row.listname || row.list_name || ''
-
-    if (fullName) {
-      rows.push({
-        fullName,
-        listName,
-        imageUrl: row.imageurl || row.image_url || undefined
-      })
+    if (!fullName) {
+      errors.push(`Row ${i + 1}: missing fullName`)
+      continue
     }
+    if (!listName) {
+      errors.push(`Row ${i + 1}: missing listName`)
+      continue
+    }
+
+    if (imageUrl && !isValidUrl(imageUrl)) {
+      errors.push(`Row ${i + 1}: invalid imageUrl format`)
+      continue
+    }
+
+    rows.push({
+      fullName,
+      listName,
+      imageUrl: imageUrl || undefined
+    })
   }
 
-  return rows
+  return { rows, errors }
+}
+
+function isValidUrl(url: string): boolean {
+  try {
+    new URL(url)
+    return true
+  } catch {
+    return url.startsWith('/') || url.startsWith('./') || url.startsWith('../')
+  }
 }
 
 export default defineEventHandler(async (event) => {
@@ -54,35 +124,29 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { csv } = body
 
-  if (!csv) {
+  if (!csv || typeof csv !== 'string') {
     throw createError({
       statusCode: 400,
       message: 'CSV data is required'
     })
   }
 
-  const rows = parseCSV(csv)
+  const parseResult = parseCSV(csv)
 
-  if (rows.length === 0) {
+  if (parseResult.rows.length === 0) {
+    const errorMsg = parseResult.errors.length > 0
+      ? parseResult.errors.join('; ')
+      : 'No valid candidates found in CSV'
     throw createError({
       statusCode: 400,
-      message: 'No valid candidates found in CSV. Ensure headers are: fullName, listName, imageUrl (optional)'
-    })
-  }
-
-  const validRows = rows.filter(row => row.fullName && row.listName)
-
-  if (validRows.length === 0) {
-    throw createError({
-      statusCode: 400,
-      message: 'No valid candidates found. Each row needs fullName and listName'
+      message: errorMsg
     })
   }
 
   const db = getDb()
 
   const inserted = await db.insert(candidates).values(
-    validRows.map(row => ({
+    parseResult.rows.map(row => ({
       fullName: row.fullName,
       listName: row.listName,
       imageUrl: row.imageUrl || null
@@ -92,6 +156,6 @@ export default defineEventHandler(async (event) => {
   return {
     message: `${inserted.length} candidates imported successfully`,
     candidates: inserted,
-    failed: rows.length - validRows.length
+    errors: parseResult.errors
   }
 })

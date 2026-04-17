@@ -281,6 +281,21 @@ const formatDate = (dateStr: string) => {
           No candidates have been added to this election yet
         </p>
       </div>
+      <div class="flex items-center gap-3 mt-6">
+        <UButton
+          to="/vote"
+          variant="outline"
+        >
+          Back to Elections
+        </UButton>
+        <UButton
+          v-if="hasVoted"
+          icon="i-lucide-bar-chart"
+          :to="`/vote/${electionId}/results`"
+        >
+          View Results
+        </UButton>
+      </div>
     </div>
 
     <UModal

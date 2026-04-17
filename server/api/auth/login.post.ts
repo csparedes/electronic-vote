@@ -1,7 +1,6 @@
 import { getDb, users } from '../../database'
 import { eq } from 'drizzle-orm'
 import { verifyPassword } from '../../utils/password'
-import { sendRedirect } from 'h3'
 import { checkRateLimit, recordFailedAttempt, clearAttempts } from '../../utils/rateLimit'
 
 export default defineEventHandler(async (event) => {
@@ -70,5 +69,5 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return sendRedirect(event, '/dashboard', 302)
+  return { success: true, user: { id: user.id, email: user.email, name: user.name, role: user.role } }
 })
