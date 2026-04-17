@@ -1,60 +1,215 @@
-# Nuxt Starter Template
+# Electronic Vote
+
+Sistema de votación electrónica construido con Nuxt 4, Nuxt UI 4 y PostgreSQL. Permite administrar elecciones, gestionar candidatos y registrar votos de forma segura con autenticación JWT.
 
 [![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 
-Use this template to get started with [Nuxt UI](https://ui.nuxt.com) quickly.
+## Descripción
 
-- [Live demo](https://starter-template.nuxt.dev/)
-- [Documentation](https://ui.nuxt.com/docs/getting-started/installation/nuxt)
+Electronic Vote es una aplicación web completa que facilita la organización y gestión de procesos electorales. Diseñado para instituciones educativas, organizaciones o cualquier entidad que requiera un sistema de votación electrónico seguro y fácil de usar.
 
-<a href="https://starter-template.nuxt.dev/" target="_blank">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png">
-    <img alt="Nuxt Starter Template" src="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png" width="830" height="466">
-  </picture>
-</a>
+El sistema cuenta con gestión de usuarios por roles, administración de elecciones y candidatos, un sistema de votación protegido contra votos duplicados, y visualización de resultados en tiempo real.
 
-> The starter template for Vue is on https://github.com/nuxt-ui-templates/starter-vue.
+## Tecnologías
 
-## Quick Start
+| Componente | Tecnología |
+|------------|------------|
+| Framework | Nuxt 4 |
+| UI Library | Nuxt UI 4 |
+| Base de datos | PostgreSQL |
+| ORM | Drizzle ORM |
+| Autenticación | nuxt-auth-utils (JWT) |
+| Estilos | TailwindCSS 4 |
+| Iconos | Lucide Icons |
+| Hashing de passwords | bcrypt |
+| Contenedor | Docker Compose |
 
-```bash [Terminal]
-npm create nuxt@latest -- -t ui
-```
+## Características
 
-## Deploy your own
+### Sistema de Autenticación
+- Registro e inicio de sesión con email y password
+- Sesiones JWT con duración de 1 hora
+- Cambio de contraseña con verificación de password actual
+- Rate limiting en login (5 intentos por cada 15 minutos) para prevenir ataques de fuerza bruta
+- Middleware global de autenticación que protege las rutas
+- Control de acceso basado en roles (RBAC)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-name=starter&repository-url=https%3A%2F%2Fgithub.com%2Fnuxt-ui-templates%2Fstarter&demo-image=https%3A%2F%2Fui.nuxt.com%2Fassets%2Ftemplates%2Fnuxt%2Fstarter-dark.png&demo-url=https%3A%2F%2Fstarter-template.nuxt.dev%2F&demo-title=Nuxt%20Starter%20Template&demo-description=A%20minimal%20template%20to%20get%20started%20with%20Nuxt%20UI.)
+### Roles y Permisos
 
-## Setup
+| Rol | Descripción |
+|-----|-------------|
+| Voter | Puede ver elecciones activas y votar |
+| Advisor | + Acceso al dashboard |
+| Admin | + Acceso a gestión de elecciones y candidatos |
+| Dev | Acceso completo al sistema |
 
-Make sure to install the dependencies:
+### Sistema de Votación
+- Lista de elecciones activas con información relevante (fechas, candidato/s)
+- Detalle de elección con visualización de candidatos
+- Selección visual de candidato antes de confirmar el voto
+- Modal de confirmación para evitar votos accidentales
+- Prevención de doble voto por usuario/elección
+- Verificación de estado de elección (solo activas aceptan votos)
+- Página de resultados con gráfico de barras y porcentaje de votos
+
+### Gestión de Elecciones y Candidatos
+- CRUD completo de elecciones (crear, editar, eliminar)
+- CRUD completo de candidatos
+- Asociación de candidatos a elecciones específicas
+- Importación masiva de candidatos desde archivos CSV
+- Validación de fechas (la fecha de fin debe ser posterior al inicio)
+- Estados de elección: Borrador, Activa, Finalizada
+
+### API REST
+Endpoints organizados por recurso:
+
+**Autenticación**
+- `POST /api/auth/register` - Registro de nuevo usuario
+- `POST /api/auth/login` - Inicio de sesión
+- `POST /api/auth/logout` - Cierre de sesión
+- `GET /api/auth/me` - Obtener usuario actual
+- `POST /api/auth/change-password` - Cambiar contraseña
+
+**Elecciones**
+- `GET /api/elections` - Listar todas las elecciones
+- `POST /api/elections` - Crear elección
+- `GET /api/elections/active` - Listar elecciones activas
+- `GET /api/elections/:id` - Obtener detalles de una elección
+- `PUT /api/elections/:id` - Actualizar elección
+- `DELETE /api/elections/:id` - Eliminar elección
+- `GET /api/elections/:id/results` - Obtener resultados de una elección
+
+**Candidatos**
+- `GET /api/candidates` - Listar todos los candidatos
+- `POST /api/candidates` - Crear candidato
+- `GET /api/candidates/:id` - Obtener detalles de un candidato
+- `PUT /api/candidates/:id` - Actualizar candidato
+- `DELETE /api/candidates/:id` - Eliminar candidato
+- `POST /api/candidates/import` - Importar candidatos desde CSV
+
+**Votos**
+- `POST /api/votes` - Registrar un voto
+- `GET /api/votes/status` - Obtener estado de votos del usuario
+
+### Base de Datos
+
+Esquema relacional optimizado con las siguientes tablas:
+
+- **users** - Usuarios del sistema con roles diferenciados
+- **elections** - Elecciones con fechas y estados
+- **candidates** - Candidatos independientes de elecciones
+- **election_candidates** - Tabla de relación many-to-many
+- **votes** - Votos con constraint de único por usuario/elección
+
+## Inicio Rápido
+
+### Requisitos Previos
+- Node.js 18+
+- pnpm (preferido) o npm
+- Docker (para PostgreSQL)
+
+### Instalación
 
 ```bash
+# Clonar el repositorio
+git clone <repository-url>
+cd electronic-vote
+
+# Instalar dependencias
 pnpm install
-```
 
-## Development Server
+# Configurar variables de entorno
+cp .env.example .env  # si existe
+# Editar .env con la URL de la base de datos
 
-Start the development server on `http://localhost:3000`:
+# Iniciar PostgreSQL con Docker
+docker compose up -d
 
-```bash
+# Generar migraciones de base de datos
+pnpm db:generate
+
+# Empujar esquema a la base de datos
+pnpm db:push
+
+# Iniciar servidor de desarrollo
 pnpm dev
 ```
 
-## Production
+La aplicación estará disponible en `http://localhost:3000`
 
-Build the application for production:
+### Comandos Disponibles
+
+| Comando | Descripción |
+|---------|------------|
+| `pnpm dev` | Iniciar servidor de desarrollo |
+| `pnpm build` | Construir para producción |
+| `pnpm preview` | Previsualizar build de producción |
+| `pnpm lint` | Ejecutar ESLint |
+| `pnpm lint:fix` | Ejecutar ESLint con correcciones automáticas |
+| `pnpm typecheck` | Verificar tipos TypeScript |
+| `pnpm db:generate` | Generar migraciones Drizzle |
+| `pnpm db:push` | Empujar esquema a la base de datos |
+| `pnpm db:studio` | Abrir Drizzle Studio (GUI de base de datos) |
+
+### Docker
+
+Para solo iniciar la base de datos PostgreSQL:
 
 ```bash
-pnpm build
+docker compose up -d
 ```
 
-Locally preview production build:
+Para detenerla:
 
 ```bash
-pnpm preview
+docker compose down
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Estructura del Proyecto
+
+```
+electronic-vote/
+├── app/
+│   ├── components/       # Componentes Vue reutilizables
+│   ├── composables/       # Lógica compartida (useAuth, usePermissions)
+│   ├── layouts/           # Plantillas de página (default, auth, authenticated)
+│   ├── middleware/        # Middleware de rutas (auth.global, role)
+│   ├── pages/            # Páginas de la aplicación
+│   │   ├── auth/          # Páginas de autenticación
+│   │   ├── dashboard/    # Dashboard
+│   │   ├── management/   # Administración
+│   │   ├── profile/       # Perfil de usuario
+│   │   └── vote/          # Votación y resultados
+│   └── types/             # Definiciones de tipos TypeScript
+├── server/
+│   ├── api/              # Endpoints de la API
+│   │   ├── auth/          # Endpoints de autenticación
+│   │   ├── candidates/    # Endpoints de candidatos
+│   │   ├── elections/     # Endpoints de elecciones
+│   │   └── votes/         # Endpoints de votos
+│   ├── database/          # Esquema y conexión de Drizzle
+│   └── utils/             # Utilidades del servidor
+├── public/                # Assets estáticos públicos
+├── docker-compose.yaml    # Configuración de PostgreSQL
+├── drizzle.config.ts     # Configuración de Drizzle ORM
+└── nuxt.config.ts         # Configuración de Nuxt
+```
+
+## Seguridad
+
+- **Passwords**: Hashing con bcrypt (10 rounds de sal)
+- **Autenticación**: Tokens JWT en sesiones HTTP-only
+- **Rate Limiting**: Prevención de ataques de fuerza bruta en login
+- **SQL Injection**: Prevención mediante Drizzle ORM (consultas parametrizadas)
+- **RBAC**: Verificación de roles en cada endpoint protegido
+- **CSRF**: Protección integrada de Nuxt
+
+## Licencia
+
+Este proyecto está bajo la licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
+
+---
+
+Construido con [Nuxt](https://nuxt.com/) y [Nuxt UI](https://ui.nuxt.com/)

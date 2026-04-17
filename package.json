@@ -1,5 +1,7 @@
 {
   "name": "electronic-vote",
+  "version": "1.0.0",
+  "description": "Sistema de votación electrónica con Nuxt 4, Nuxt UI 4 y PostgreSQL",
   "private": true,
   "type": "module",
   "scripts": {
